@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String?
+  googleId      String?
+  facebookId    String?
+  name          String?
+  gender        String?
+  phoneNumber   String?
+  imageUrl      String?
+  verifyCode    String?        @unique
+  verifiedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  role          String         @default("CUSTOMER")
+  status        String         @default("INACTIVE")
+  orders        Order[]
+  comments      Comment[]
+  referredBy    Affiliate?     @relation("ReferredBy", fields: [referredById], references: [id])
+  referredById  Int?
+  notifications Notification[]
+  affiliate     Affiliate?
+  Wallet        Wallet?
+  Log           Log[]
+}
+
+model Product {
+  id                  Int         @id @default(autoincrement())
+  name                String
+  shortName           String?
+  sku                 String      @unique
+  slug                String      @unique
+  description         String?
+  variantLabel        String?
+  price               Float
+  isTrending          Boolean     @default(false)
+  status              String      @default("DRAFT")
+  discountPrice       Float
+  imageUrl            String
+  gallery             String[]
+  stock               Int
+  showNoteForm        Boolean     @default(false)
+  noteFormLabel       String?
+  noteFormPlaceholder String?
+  noteFormDescription String?
+  maxPurchaseQuantity Int         @default(1)
+  categoryId          Int
+  variants            Int[]
+  category            Category    @relation(fields: [categoryId], references: [id])
+  comments            Comment[]   @relation("ProductComment")
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @default(now()) @updatedAt
+  OrderItem           OrderItem[]
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  status      String    @default("DRAFT")
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+}
+
+model Order {
+  id                      Int                  @id @default(autoincrement())
+  userId                  Int
+  orderId                 String               @unique
+  total                   Float
+  subTotal                Float
+  status                  String               @default("PENDING")
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @default(now()) @updatedAt
+  user                    User                 @relation(fields: [userId], references: [id])
+  orderItems              OrderItem[]
+  paymentTransaction      PaymentTransaction[]
+  affiliateFriendEarnings Float?
+  affiliateEarnings       Float?
+  affiliate               Affiliate?           @relation(fields: [affiliateId], references: [id])
+  affiliateId             Int?
+  couponCode              String?
+  paymentMethodId         Int
+  paymentMethod           PaymentMethod        @relation(fields: [paymentMethodId], references: [id])
+  coupon                  Coupon?              @relation(fields: [couponCode], references: [code])
+}
+
+model OrderItem {
+  id                   Int      @id @default(autoincrement())
+  orderId              Int
+  productId            Int
+  quantity             Int
+  note                 String?
+  productName          String
+  productPrice         Float
+  productDiscountPrice Float
+  productImageUrl      String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+  order                Order    @relation(fields: [orderId], references: [id])
+  product              Product  @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+}
+
+model Coupon {
+  id               Int      @id @default(autoincrement())
+  name             String
+  description      String?
+  code             String   @unique
+  type             String // fixed or percent
+  discount         Float
+  maxDiscountValue Float
+  minOrderValue    Float
+  quantity         Int
+  status           String   @default("INACTIVE")
+  validFrom        DateTime
+  validTo          DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  Order            Order[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  userId    Int
+  status    String   @default("IN_REVIEW")
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product? @relation("ProductComment", fields: [productId], references: [id])
+}
+
+model PaymentMethod {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  code               String               @unique
+  description        String?
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now()) @updatedAt
+  paymentTransaction PaymentTransaction[]
+  Order              Order[]
+}
+
+model PaymentTransaction {
+  id              Int           @id @default(autoincrement())
+  orderId         Int
+  methodId        Int
+  amount          Float
+  transactionDate DateTime      @default(now())
+  transactionId   String?
+  note            String?
+  status          String        @default("PENDING") // PENDING, FAILED, RECEIVED, REFUNDED
+  order           Order         @relation(fields: [orderId], references: [id])
+  method          PaymentMethod @relation(fields: [methodId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now()) @updatedAt
+}
+
+model Banner {
+  id            Int      @id @default(autoincrement())
+  title         String
+  url           String
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+  position      Int
+  backgroundUrl String
+}
+
+model Affiliate {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  code           String   @unique
+  friendEarnings Float    @default(0.0)
+  earnings       Float    @default(0.0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  referrals      User[]   @relation("ReferredBy")
+  Order          Order[]
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  content   String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Wallet {
+  id            Int             @id @default(autoincrement())
+  userId        Int             @unique
+  amount        Float           @default(0.0)
+  point         Float           @default(0.0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+  user          User            @relation(fields: [userId], references: [id])
+  WalletHistory WalletHistory[]
+}
+
+model WalletHistory {
+  id        Int      @id @default(autoincrement())
+  amount    Float    @default(0.0)
+  action    String
+  walletId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  action    String
+  oldData   Json
+  newData   Json
+  entity    String
+  entityId  Int
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([entity, action])
+}

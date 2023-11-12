@@ -83,6 +83,7 @@ const BannerForm: React.FC<BannerFormProps> = ({
                       size="lg"
                       title='Select image'
                       onChange={field.onChange}
+                      initialFiles={field.value ? [{ url: field.value }] as File[] : undefined}
                     />
                   </FormControl>
                   <FormMessage />

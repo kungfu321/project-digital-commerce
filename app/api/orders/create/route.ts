@@ -9,7 +9,7 @@ import { generateUniqueOrderId } from '@/lib/database';
 import { senEmail } from '@/lib/mail';
 import { absoluteUrl } from '@/lib/utils';
 
-export const orderSchema = z.object({
+const orderSchema = z.object({
   couponCode: z.string().min(3).optional(),
   refCode: z.string().min(6).optional(),
   paymentMethodId: z.number().int(),

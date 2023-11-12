@@ -5,7 +5,7 @@ import { generateUniqueUserVerifyCode } from '@/lib/database';
 import { errorResponseJson, successResponseJson } from '@/lib/apiFormat';
 import { senEmail } from '@/lib/mail';
 
-export const resetPasswordSchema = z.object({
+const resetPasswordSchema = z.object({
   email: z.string().email(),
 });
 

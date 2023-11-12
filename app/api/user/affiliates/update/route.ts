@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { errorResponseJson, successResponseJson } from "@/lib/apiFormat";
 import { isAuthenticatedSVOnly } from "@/lib/auth";
 
-export const affiliateSchema = z.object({
+const affiliateSchema = z.object({
   earnings: z.number().min(0).max(5),
 });
 

@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { errorResponseJson, successResponseJson } from "@/lib/apiFormat";
 import { isAuthenticatedSVOnly } from "@/lib/auth";
 
-export const profileSchema = z.object({
+const profileSchema = z.object({
   name: z.string(),
   phoneNumber: z.string(),
   gender: z.string().optional(),

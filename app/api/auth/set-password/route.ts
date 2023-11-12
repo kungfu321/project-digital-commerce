@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { errorResponseJson, successResponseJson } from '@/lib/apiFormat';
 import { senEmail } from '@/lib/mail';
 
-export const registerSchema = z.object({
+const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   confirmPassword: z.string().min(8),

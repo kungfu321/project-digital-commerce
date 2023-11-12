@@ -6,7 +6,7 @@ import { generateUniqueAffiliateCode, generateUniqueUserVerifyCode } from '@/lib
 import { errorResponseJson, successResponseJson } from '@/lib/apiFormat';
 import { senEmail } from '@/lib/mail';
 
-export const registerSchema = z.object({
+const registerSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   password: z.string().min(8),

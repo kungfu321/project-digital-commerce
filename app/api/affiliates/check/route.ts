@@ -5,14 +5,14 @@ import prisma from "@/lib/prisma";
 import { errorResponseJson, successResponseJson } from "@/lib/apiFormat";
 import { isAuthenticatedSVOnly } from '@/lib/auth';
 
-export const commentSchema = z.object({
+const affiliateSchema = z.object({
   code: z.string(),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const jsonData = await request.json();
-    const data = commentSchema.parse(jsonData);
+    const data = affiliateSchema.parse(jsonData);
 
     const { isValidToken } = await isAuthenticatedSVOnly(request);
 

@@ -1,5 +1,7 @@
 # Build a Digital Commerce Website with Next.js 14, React, Tailwind, Prisma, Multiple Payment Method | Full Tutorial 2023
 
+![project digital commerce](https://github.com/kungfu321/project-digital-commerce/assets/10558363/99337897-a587-4e08-b1f5-881792734d6d)
+
 In this repository we are Build a Digital Commerce Website with Next.js 14, React, Tailwind, Prisma, Multiple Payment Method | Full Tutorial 2023
 
 VIDEO TUTORIAL (English version) (Coming soon)

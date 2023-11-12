@@ -31,7 +31,7 @@ const ProductList: React.FC<ProductListProps> = ({
             "lg:grid-cols-4"
           )}>
             {
-              data.map(item => <ProductCard key={item.id} data={item} />)
+              data.map((item, index) => <ProductCard key={index} data={item} />)
             }
           </div>
           :

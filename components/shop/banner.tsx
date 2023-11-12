@@ -10,8 +10,8 @@ const Banner: React.FC<BannerProps> = ({ data }) => {
     <div className="mt-2">
       <Carousel imageCount={data?.length}>
         {
-          data?.map(item => <CarouselItem
-            key={item.url}
+          data?.map((item, index) => <CarouselItem
+            key={index}
             url={item.url}
             image={item.backgroundUrl}
             title={item.title} />)

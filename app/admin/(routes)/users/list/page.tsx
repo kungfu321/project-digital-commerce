@@ -1,6 +1,12 @@
+import { Metadata } from "next";
+
 import PageHeader from "@/components/admin/page-header";
 import UserTable from "@/components/admin/user/user-table";
 import { getUsers } from "@/lib/getDataSVOnly";
+
+export const metadata: Metadata = {
+  title: "User List | Admin",
+}
 
 const UsersPage = async ({
   searchParams,

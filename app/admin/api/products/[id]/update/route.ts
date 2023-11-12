@@ -14,16 +14,33 @@ export async function PUT(
   try {
     const product = await prisma.$transaction(async (prismaTSC) => {
       const { isValidToken } = await isAuthenticatedSVOnly(request);
-      const oldProduct = await prisma.product.findUniqueOrThrow({
+      const oldProduct = await prismaTSC.product.findUniqueOrThrow({
         where: { id: Number(params.id) },
       });
 
       const jsonData = await request.json();
-      const data = productSchema.parse(jsonData);
-      const product = await prisma.product.update({
+      const { seo: seoData, ...data } = productSchema.parse(jsonData);
+      const { seo: oldSeo, ...product } = await prismaTSC.product.update({
         where: { id: Number(params.id) },
-        data
+        data,
+        include: {
+          seo: true
+        }
       });
+
+      const newSeo = await prismaTSC.seo.update({
+        where: { id: product.seoId || 0 },
+        data: seoData
+      });
+
+      await addLogEntry({
+        entityId: product.id,
+        userId: isValidToken.userId,
+        newData: newSeo,
+        oldData: oldSeo,
+        action: 'UPDATE',
+        entity: 'SEO'
+      }, prismaTSC as PrismaClient);
 
       await addLogEntry({
         entityId: product.id,

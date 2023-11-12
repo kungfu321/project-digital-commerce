@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { seoFormSchema } from '../seo-schema';
 
 export const productSchema = z.object({
   name: z.string().min(1).max(255),
@@ -16,9 +17,10 @@ export const productSchema = z.object({
   noteFormPlaceholder: z.string().optional(),
   noteFormDescription: z.string().optional(),
   stock: z.number().int().min(0),
-  maxPurchaseQuantity: z.number().int(),
+  maxPurchaseQuantity: z.number().int().min(0),
   categoryId: z.number().int().min(1),
   status: z.enum(['DRAFT', 'PUBLISHED']),
   gallery: z.array(z.string().url()).optional(),
   variants: z.array(z.number()).optional(),
+  seo: seoFormSchema
 });

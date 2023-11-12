@@ -1,6 +1,12 @@
+import { Metadata } from "next";
+
 import SideBar from "@/components/admin/side-bar";
 import TopBar from "@/components/admin/top-bar";
 import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Admin",
+}
 
 const AdminLayout = async (props: {
   children: React.ReactNode;

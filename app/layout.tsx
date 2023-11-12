@@ -5,12 +5,14 @@ import NextTopLoader from 'nextjs-toploader';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { absoluteUrl } from "@/lib/utils";
 
 const publicSans = Public_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "OKeyXin",
   description: "OKeyXin",
+  metadataBase: new URL(absoluteUrl('')),
 }
 
 export default function RootLayout({

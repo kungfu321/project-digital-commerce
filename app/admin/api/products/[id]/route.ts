@@ -11,7 +11,8 @@ export async function GET(
     const product = await prisma.product.findUniqueOrThrow({
       where: { id: Number(params.id) },
       include: {
-        category: true
+        category: true,
+        seo: true
       }
     });
 

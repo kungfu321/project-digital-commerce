@@ -12,6 +12,7 @@ export async function GET(
       where: { slug: params.slug, status: 'PUBLISHED' },
       include: {
         category: true,
+        seo: true,
       }
     });
 

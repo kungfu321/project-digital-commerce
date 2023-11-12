@@ -63,6 +63,8 @@ model Product {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @default(now()) @updatedAt
   OrderItem           OrderItem[]
+  seo                 Seo?        @relation(fields: [seoId], references: [id])
+  seoId               Int?
 }
 
 model Category {
@@ -74,6 +76,8 @@ model Category {
   products    Product[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
+  seo         Seo?      @relation(fields: [seoId], references: [id])
+  seoId       Int?
 }
 
 model Order {
@@ -242,4 +246,22 @@ model Log {
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([entity, action])
+}
+
+model Seo {
+  id              Int        @id @default(autoincrement())
+  title           String
+  metaDescription String?
+  metaKeywords    String?
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  canonicalUrl    String?
+  noIndex         Boolean    @default(false)
+  noFollow        Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
+  entityData      String?
+  product         Product[]
+  category        Category[]
 }

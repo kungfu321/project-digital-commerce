@@ -37,6 +37,7 @@ VIDEO TUTORIAL (Vietnamese version) (Coming soon)
 - Admin dashboard
 - How to write GET, POST, PUT, DELETE routes in route handlers (app/api)
 - Folder structure in Next 14 App Router
+- How to deploy project to DigitalOcean VPS
 - And many other features. I'll continue to contribute to this repo
 
 ## Prerequisites

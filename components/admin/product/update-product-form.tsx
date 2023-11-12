@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form';
 import { putRequest } from '@/lib/request';
 import { useToast } from '@/components/ui/use-toast';
-import { cn, setErrorFromZodServer, stringToSlug } from '@/lib/utils';
+import { absoluteUrl, cn, setErrorFromZodServer, stringToSlug } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,8 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { productFormSchema } from './schema';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 interface UpdateProductFormProps {
   categories: Category[];
@@ -55,6 +57,7 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({
       sku: data.sku,
       status: data.status,
       imageUrl: data.imageUrl || "",
+      shortName: data.shortName || "",
       gallery: data.gallery || [],
       stock: data.stock,
       price: data.price,
@@ -125,6 +128,19 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({
                   <FormLabel>Name</FormLabel>
                   <FormControl onBlur={handleUpdateSlug}>
                     <Input placeholder="Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="shortName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short name</FormLabel>
+                  <FormControl onBlur={handleUpdateSlug}>
+                    <Input placeholder="Short name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -220,9 +236,14 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Slug" {...field} />
-                    </FormControl>
+                    <div className='flex items-center'>
+                      <FormControl>
+                        <Input placeholder="Slug" {...field} />
+                      </FormControl>
+                      <Link href={absoluteUrl(`/${data.slug}`)} target='_blank'>
+                        <ExternalLink size={18} className='ml-2' />
+                      </Link>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

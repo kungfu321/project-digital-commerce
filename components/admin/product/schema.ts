@@ -5,6 +5,7 @@ export const productFormSchema = z.object({
   sku: z.string().min(1).max(255),
   slug: z.string().min(1).max(255),
   description: z.string().optional(),
+  shortName: z.string().optional(),
   price: z.coerce.number().int(),
   discountPrice: z.coerce.number().int(),
   imageUrl: z.string().url(),

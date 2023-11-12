@@ -118,6 +118,19 @@ const CreateProductForm: React.FC<CreateProductFormProps> = ({
               />
               <FormField
                 control={form.control}
+                name="shortName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Short name</FormLabel>
+                    <FormControl onBlur={handleUpdateSlug}>
+                      <Input placeholder="Short name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>

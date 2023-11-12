@@ -15,7 +15,7 @@ export const orderSchema = z.object({
   paymentMethodId: z.number().int(),
   cart: z.array(z.object({
     id: z.number().int(),
-    quantity: z.number().int(),
+    quantity: z.number().int().min(1),
     note: z.string().optional(),
   }))
 });
@@ -26,11 +26,10 @@ type CartItem = {
 } & Product;
 
 export async function POST(request: NextRequest) {
-  const jsonData = await request.json();
-  const data = orderSchema.parse(jsonData);
-
   try {
     const respData = await prisma.$transaction(async (prismaTSC) => {
+      const jsonData = await request.json();
+      const data = orderSchema.parse(jsonData);
       const { isValidToken } = await isAuthenticatedSVOnly(request);
       const currentUser = await prismaTSC.user.findUnique({
         where: { id: isValidToken.userId },
@@ -39,23 +38,24 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      const productIds = data.cart.map(item => item.id);
       const products = await prismaTSC.product.findMany({
         where: {
           id: {
-            in: data.cart.map(item => item.id)
+            in: productIds
           }
         },
       });
 
       let subTotal = 0;
-      let total = 0;
-      let maxPurchaseQuantityCount = 0;
       const cartItems: CartItem[] = [];
 
       products.forEach((item) => {
-        maxPurchaseQuantityCount += item.maxPurchaseQuantity;
-
         const { quantity, note } = data.cart.find(c => c.id === item.id) || {};
+        if (item.stock < quantity! || item.maxPurchaseQuantity < quantity!) {
+          throw ({ message: 'Some products data not valid' });
+        }
+
         subTotal += item.discountPrice * (quantity || 0);
 
         cartItems.push({
@@ -65,13 +65,23 @@ export async function POST(request: NextRequest) {
         });
       });
 
-      const totalQuantity = data.cart.reduce((p, c) => p + c.quantity, 0);
-
-      if (products.length !== data.cart.length && totalQuantity > maxPurchaseQuantityCount) {
-        return errorResponseJson({ message: 'Some products data not valid' });
+      if (products.length !== data.cart.length) {
+        throw ({ message: 'Some products data not valid' });
       }
 
-      total = subTotal;
+      const promiseAllUpdateProducts = data.cart.map(item =>
+        prismaTSC.product.update({
+          where: { id: item.id },
+          data: {
+            stock: {
+              decrement: item.quantity
+            }
+          }
+        })
+      );
+      await Promise.all(promiseAllUpdateProducts);
+
+      let total = subTotal;
 
       if (data.couponCode) {
         const totalUsed = await prismaTSC.order.count({
@@ -89,7 +99,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!coupon || totalUsed >= coupon.quantity) {
-          return errorResponseJson({ message: 'Coupon code not valid' });
+          throw ({ message: 'Coupon code not valid' });
         }
 
         total = coupon.type === 'fixed' ? total - coupon.discount : total - (total * coupon.discount / 100);
@@ -108,7 +118,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!affiliate) {
-          return errorResponseJson({ message: 'Ref code not valid' });
+          throw ({ message: 'Ref code not valid' });
         }
 
         affiliateData = {
@@ -140,7 +150,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (!paymentMethod) {
-        return errorResponseJson({ message: 'Payment method not valid' });
+        throw ({ message: 'Payment method not valid' });
       }
 
       const orderId = await generateUniqueOrderId();

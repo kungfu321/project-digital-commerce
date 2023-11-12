@@ -60,6 +60,15 @@ export async function DELETE(
         }
       });
 
+      await prismaTSC.product.update({
+        where: { id: orderItem.productId },
+        data: {
+          stock: {
+            increment: orderItem.quantity
+          }
+        }
+      });
+
       await addLogEntry({
         entityId: orderItem.id,
         userId: isValidToken.userId,

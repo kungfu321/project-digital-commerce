@@ -36,6 +36,9 @@ export async function POST(
         where: {
           id: {
             in: data.productIds
+          },
+          stock: {
+            gte: 1
           }
         }
       });
@@ -43,6 +46,18 @@ export async function POST(
       if (products.length !== data.productIds.length) {
         throw { message: 'Some products not valid' };
       }
+
+      const promiseAllUpdateProducts = data.productIds.map(item =>
+        prismaTSC.product.update({
+          where: { id: item },
+          data: {
+            stock: {
+              decrement: 1
+            }
+          }
+        })
+      );
+      await Promise.all(promiseAllUpdateProducts);
 
       const newOrderItemsData = products.map(item => ({
         orderId: Number(params.id),

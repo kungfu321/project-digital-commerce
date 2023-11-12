@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { errorResponseJson, successResponseJson } from "@/lib/apiFormat";
 
 export const commentSchema = z.object({
-  text: z.string(),
+  text: z.string().min(10),
   userId: z.number().int(),
   productId: z.number().int(),
 });

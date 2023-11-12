@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
     const banners = await prisma.banner.findMany({
       skip,
       take,
+      orderBy: {
+        position: 'asc'
+      }
     });
 
     const totalBanner = await prisma.banner.count();

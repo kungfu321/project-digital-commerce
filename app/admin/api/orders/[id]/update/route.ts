@@ -16,8 +16,11 @@ export async function PUT(
   try {
     const order = await prisma.$transaction(async (prismaTSC) => {
       const { isValidToken } = await isAuthenticatedSVOnly(request);
-      const oldOrder = await prismaTSC.order.findUniqueOrThrow({
+      const { orderItems, ...oldOrder } = await prismaTSC.order.findUniqueOrThrow({
         where: { id: Number(params.id) },
+        include: {
+          orderItems: true
+        }
       });
 
       const jsonData = await request.json();
@@ -52,6 +55,20 @@ export async function PUT(
             }
           });
         }
+      }
+
+      if (['CANCELLED', 'REFUNDED'].includes(data.status) && oldOrder.status !== data.status) {
+        const promiseAllUpdateProducts = orderItems.map(item =>
+          prismaTSC.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity
+              }
+            }
+          })
+        );
+        await Promise.all(promiseAllUpdateProducts);
       }
 
       const haveChanged = await addLogEntry({
